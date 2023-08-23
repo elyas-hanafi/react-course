@@ -20,3 +20,13 @@ function debounce(fn, delay) {
     }, delay);
   };
 }
+
+const number = 1;
+const name = 'elyas';
+
+const data = {
+  id: 1,
+  name: 'elyas',
+};
+
+const userData = [{}, {}, {}];
