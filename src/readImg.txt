@@ -1,0 +1,80 @@
+import React, { useEffect, useState } from 'react';
+import MemoizedComponent from './Memo';
+import axios from 'axios';
+export default function App() {
+  // Replace these with the actual values for the repository you want to fetch
+  const username = 'adrianhajdin';
+  const repositoryName = 'ecommerce_sanity_stripe';
+  const accessToken =
+    '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';
+  // Function to fetch the repository data
+  async function getRepositoryData() {
+    try {
+      // Fetch the repository data
+      const repositoryData = await axios.get(
+        `https://api.github.com/repos/${username}/${repositoryName}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      // Get the README URL from the repository data
+      const readmeUrl = repositoryData.data.contents_url.replace(
+        '{+path}',
+        'README.md'
+      );
+
+      // Fetch the README content
+      const readmeResponse = await axios.get(readmeUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: 'application/vnd.github.v3.raw', // Request raw content
+        },
+      });
+      console.log(readmeResponse);
+      // Extract image URLs from the README content
+      const imageUrls = extractImageUrlsFromReadme(readmeResponse.data);
+
+      return imageUrls;
+    } catch (error) {
+      console.error('Error fetching repository data:', error.message);
+      return null;
+    }
+  }
+
+  // Function to extract image URLs from the README content
+  function extractImageUrlsFromReadme(readmeContent) {
+    const imageUrls = [];
+    const regex = /!\[.*?\]\((.*?)\)/g;
+    let match;
+
+    while ((match = regex.exec(readmeContent))) {
+      imageUrls.push(match[1]);
+    }
+
+    return imageUrls[6];
+  }
+
+  // Call the function to fetch repository data
+  useEffect(() => {
+    getRepositoryData()
+      .then((imageUrls) => {
+        if (imageUrls && imageUrls.length > 0) {
+          console.log('Image URLs used in the README:', imageUrls);
+        } else {
+          console.log('No image URLs found in the README.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error.message);
+      });
+  }, []);
+
+  return (
+    <>
+      <MemoizedComponent />
+    </>
+  );
+}
