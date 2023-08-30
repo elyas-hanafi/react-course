@@ -1,34 +1,36 @@
-import React, { useReducer, useState } from 'react';
+import React from 'react';
 
-const initState = {
-  number: 0,
-  status: false,
+const createStore = (reducer) => {
+  let state;
+
+  const dispatch = (action) => {
+    state = reducer(action);
+  };
+
+  dispatch();
+
+  const getState = () => state;
+
+  return { getState, dispatch };
 };
+
+const initState = { name: 'elyas' };
 
 const reducer = (state = initState, action) => {
   switch (action.type) {
-    case 'IncreaseNumber':
-      return {
-        ...state,
-        number: state.number + 1,
-      };
+    case 'RETURN_DEFAULT':
+      return state;
     default:
       return state;
   }
 };
+
+const store = createStore(reducer);
+
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initState);
-  console.log(state);
   return (
     <>
-      <button
-        onClick={() => {
-          dispatch({ type: 'IncreaseNumber' });
-        }}
-      >
-        Click me
-      </button>
-      <h2>{state.number}</h2>
+      <button>Click me</button>
     </>
   );
 }
